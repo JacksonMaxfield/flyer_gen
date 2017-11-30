@@ -1,0 +1,14 @@
+{
+  "wa" : {
+    "jayapal" : {
+      "phone" : "202-225-3106",
+      "photo" : "C:/Users/jacks/Desktop/active/flyer_gen/resources/jayapal.jpg",
+      "townhallCount" : 2
+    },
+    "reichert" : {
+      "phone" : "202-225-7761",
+      "photo" : "C:/Users/jacks/Desktop/active/flyer_gen/resources/reichert.jpg",
+      "townhallCount" : 0
+    }
+  }
+}

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Notify Missing Members</title>
+
+    <!-- styles -->
+    <link href="" type='text/css' rel='stylesheet'>
+    <link href="https://fonts.googleapis.com/css?family=Montserrat|Raleway:400,700" rel="stylesheet">
+
+    <!-- imported -->
+    <script src="js/imported/jquery-3.2.1.js" charset="utf-8"></script>
+    <script src="js/imported/vue.js" charset="utf-8"></script>
+    <script src="js/imported/vue-router.js" charset="utf-8"></script>
+    <script src="js/imported/html2canvas.js" charset="utf-8"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/rasterizehtml/1.2.4/rasterizeHTML.allinone.js" charset="utf-8"></script>
+    <!-- <script src="js/imported/alasql.min.js" charset="utf-8"></script>
+    <script src="js/imported/firebase-app.js" charset="utf-8"></script>
+    <script src="js/imported/firebase-database.js" charset="utf-8"></script>
+    <script src="js/imported/vuefire.js" charset="utf-8"></script> -->
+
+    <!--  my scripts -->
+    <style>
+     @import url("https://fonts.googleapis.com/css?family=Montserrat|Raleway:400,700");
+
+      #app {
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+
+      .montserrat {
+        font-family: "Montserrat", sans-serif;
+      }
+
+      .raleway {
+        font-family: "Raleway", sans-serif;
+      }
+
+    </style>
+  </head>
+  <body>
+    <div id="app">
+
+      <!-- route outlet -->
+      <!-- component matched by the route will render here -->
+      <router-view></router-view>
+    </div>
+  </body>
+
+  <script src="js/my/app.js" charset="utf-8"></script>
+</html>

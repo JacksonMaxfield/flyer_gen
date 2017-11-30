@@ -1,0 +1,39 @@
+democrat blue:		#4DAADF
+republican red:		#FF544B
+independent green:	#8EFF4B
+
+fonts:
+	heading:		montserrat
+	label:			raleway
+	name:			montserrat
+	district:		montserrat
+	call to action:	raleway
+	thp:			montserrat
+
+	@import url('https://fonts.googleapis.com/css?family=Montserrat|Raleway:400,700')
+
+    font-family: 'Montserrat', sans-serif;
+    font-family: 'Raleway', sans-serif;
+
+
+html2canvas documentation:
+
+	$('#target').on('click', function() {
+		console.log("rendering", target, "as image");
+
+		html2canvas(document.body, {
+		  onrendered: function(canvas) {
+		    document.body.appendChild(canvas);
+		  }
+		});
+	});
+
+
+TODO:
+	preload canvas on route component -- DONE
+	switch to rasterizeHTML.js over html2canvas.js -- IN PROGRESS, Image width/ height failing
+
+TODO:
+	party color implementation
+	general page layout
+	entrance and state routes
