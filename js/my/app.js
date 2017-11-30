@@ -105,6 +105,21 @@ const MemberViewComponent = {
       }
     };
   },
+  firebase: function() {
+    return {
+      events: {
+        source: firebaseDB.ref("/events/"),
+        asObject: true,
+        cancelCallback: function() {
+          console.log("Data pull for events failed...");
+        },
+        readyCallback: function() {
+          console.log("Data pull and sort for events complete");
+          this.eventsAreLoaded = true;
+        }
+      }
+    };
+  },
   computed: {
     memberData: function() {
       return this.repList[this.member];
