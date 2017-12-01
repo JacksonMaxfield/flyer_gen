@@ -5,32 +5,6 @@
 // These can be imported from other files
 
 const EntranceComponent = {
-  data: function() {
-    return {
-      repList: {
-        "jayapal" : {
-          "body" : "House of Representative's",
-          "fullName" : "Pramila Jayapal",
-          "phone" : "202-225-3106",
-          "photo" : "../../resources/jayapal.jpg",
-          "state" : "Washington",
-          "district" : 7,
-          "party" : "Democrat",
-          "townhallCount" : 2
-        },
-        "reichert" : {
-          "body" : "House of Representative's",
-          "fullName" : "Dave Reichert",
-          "phone" : "202-225-7761",
-          "photo" : "../../resources/reichert.jpg",
-          "state" : "Washington",
-          "district" : 8,
-          "party" : "Republican",
-          "townhallCount" : 0
-        }
-      }
-    };
-  },
   template: `
     <div>
       <p>Entered Main</p>
@@ -73,31 +47,10 @@ const StateViewComponent = {
 };
 
 const MemberViewComponent = {
-  props: ["member"],
+  props: ["memberId"],
   data: function() {
     return {
-      repList: {
-        "jayapal" : {
-          "body" : "House of Representative's",
-          "fullName" : "Pramila Jayapal",
-          "phone" : "202-225-3106",
-          "photo" : "../../resources/jayapal.jpg",
-          "state" : "Washington",
-          "district" : 7,
-          "party" : "Democrat",
-          "townhallCount" : 2
-        },
-        "reichert" : {
-          "body" : "House of Representative's",
-          "fullName" : "Dave Reichert",
-          "phone" : "202-225-7761",
-          "photo" : "../../resources/reichert.jpg",
-          "state" : "Washington",
-          "district" : 8,
-          "party" : "Republican",
-          "townhallCount" : 0
-        }
-      },
+      memberIsLoaded: false,
       canvasStyle: {
         display: "none",
         height: "2458px",
@@ -107,23 +60,18 @@ const MemberViewComponent = {
   },
   firebase: function() {
     return {
-      events: {
-        source: firebaseDB.ref("/events/"),
+      memberData: {
+        source: firebaseDB.ref("/mocData/" + this.memberId + "/"),
         asObject: true,
         cancelCallback: function() {
-          console.log("Data pull for events failed...");
+          console.log("Data pull for " + this.memberId + " failed...");
         },
         readyCallback: function() {
-          console.log("Data pull and sort for events complete");
-          this.eventsAreLoaded = true;
+          console.log("Data pull for " + this.memberId + " complete");
+          this.memberIsLoaded = true;
         }
       }
     };
-  },
-  computed: {
-    memberData: function() {
-      return this.repList[this.member];
-    }
   },
   methods: {
     generateAndLinkDownloadOptions: function() {
@@ -145,8 +93,10 @@ const MemberViewComponent = {
       // link.href = img;
 
       html2canvas(document.getElementById("targetCanvas"), {
+        allowTaint: true,
+        useCORS: true,
   		  onrendered: function(canvas) {
-          let img = canvas.toDataURL("image/png").replace("image/png", "image/octet-stream");
+          let img = canvas.toDataURL();
 
           let link = document.getElementById("imageDownloadButton");
           link.download = ("missing_member_flyer.png");
@@ -155,18 +105,17 @@ const MemberViewComponent = {
   		});
     }
   },
-  mounted: function() {
-    this.$nextTick(function() {
-      this.generateAndLinkDownloadOptions();
-    });
-  },
   template: `
     <div>
-      <p>Entered MemberView for: {{member}}</p>
-      <p>{{memberData}}</p>
+      <p>Entered MemberView for: {{memberId}}</p>
       <a id="imageDownloadButton" v-on:click="generateAndLinkDownloadOptions">Download Flyer Image</a>
-      <flyer v-bind:id="'targetFlyer'" v-bind:memberData="memberData"></flyer>
-      <canvas v-bind:id="'targetCanvas'" v-bind:style="canvasStyle"></canvas>
+      <div v-if="memberIsLoaded">
+        <flyer v-bind:id="'targetFlyer'" v-bind:memberData="memberData"></flyer>
+        <canvas v-bind:id="'targetCanvas'" v-bind:style="canvasStyle"></canvas>
+      </div>
+      <div v-else>
+        <p>loading flyer...</p>
+      </div>
     </div>`
 };
 
@@ -193,11 +142,6 @@ Vue.component("flyer", {
     };
   },
   computed: {
-    townhallCountWord: function() {
-      let counts = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve"];
-
-      return counts[this.memberData.townhallCount];
-    },
     partyColor: function() {
       // if (this.memberData.party === "Democrat") {
       //   return "#4DAADF";
@@ -211,10 +155,20 @@ Vue.component("flyer", {
     flyerMemberLabel: function() {
       let message = "";
 
-      if (this.memberData.body === "House of Representative's") {
-        message += this.memberData.state;
+      if (this.memberData.type === "sen") {
+        message += this.memberData.stateName;
         message += "'s ";
-        message += this.memberData.district;
+        message += "senator";
+
+      } else {
+        message += this.memberData.stateName;
+        message += "'s ";
+
+        if (this.memberData.district.toUpperCase() == "AT-LARGE") {
+          message += "1";
+        } else {
+          message += this.memberData.district;
+        }
 
         if (this.memberData.district > 3) {
           message += "th ";
@@ -227,10 +181,6 @@ Vue.component("flyer", {
         }
 
         message += "congressional district";
-      } else {
-        message += this.memberData.state;
-        message += "'s ";
-        message += "senator";
       }
 
       return message.toUpperCase();
@@ -241,11 +191,11 @@ Vue.component("flyer", {
       <div v-bind:style="styleObject">
         <div>
           <flyer-header v-bind:textColor="partyColor"></flyer-header>
-          <flyer-label v-bind:townhallCount="townhallCountWord"></flyer-label>
-          <flyer-name v-bind:body="memberData.body" v-bind:fullName="memberData.fullName"></flyer-name>
-          <flyer-image v-bind:imagePath="memberData.photo" v-bind:borderColor="partyColor"></flyer-image>
+          <flyer-label v-bind:heldTownhall="memberData.missingMember"></flyer-label>
+          <flyer-name v-bind:type="memberData.type" v-bind:displayName="memberData.displayName"></flyer-name>
+          <flyer-image v-bind:govtrackId="memberData.govtrack_id" v-bind:borderColor="partyColor"></flyer-image>
           <flyer-district v-bind:displayMessage="flyerMemberLabel"></flyer-district>
-          <flyer-cta v-bind:fullName="memberData.fullName" v-bind:phone="memberData.phone" v-bind:divColor="partyColor"></flyer-cta>
+          <flyer-cta v-bind:displayName="memberData.displayName" v-bind:phone="memberData.phone" v-bind:divColor="partyColor"></flyer-cta>
           <flyer-footer v-bind:textColor="partyColor"></flyer-footer>
         </div>
       </div>
@@ -278,7 +228,7 @@ Vue.component("flyer-header", {
 });
 
 Vue.component("flyer-label", {
-  props: ["townhallCount"],
+  props: ["missingMember"],
   data: function() {
     return {
       styleObject: {
@@ -296,11 +246,11 @@ Vue.component("flyer-label", {
     };
   },
   template: `
-    <h3 v-bind:style="styleObject" class="raleway"><b>{{townhallCount.toUpperCase()}}</b>&nbsp;IN-PERSON&nbsp;TOWN&nbsp;HALLS&nbsp;IN&nbsp;2017</h3>`
+    <h3 v-bind:style="styleObject" class="raleway"><b>ZERO</b>&nbsp;IN-PERSON&nbsp;TOWN&nbsp;HALLS&nbsp;IN&nbsp;2017</h3>`
 });
 
 Vue.component("flyer-name", {
-  props: ["body", "fullName"],
+  props: ["type", "displayName"],
   data: function() {
     return {
       styleObject: {
@@ -314,22 +264,11 @@ Vue.component("flyer-name", {
       }
     };
   },
-  computed: {
-    memType: function() {
-      if (this.body === "House of Representative's") {
-        return "Rep.";
-      } else if (this.body === "Senate") {
-        return "Sen.";
-      } else {
-        return "Err.";
-      }
-    }
-  },
-  template: `<h3 v-bind:style="styleObject" class="montserrat">{{memType.toUpperCase()}}&nbsp;{{fullName.toUpperCase()}}</h3>`
+  template: `<h3 v-bind:style="styleObject" class="montserrat">{{type.toUpperCase()}}.&nbsp;{{displayName.toUpperCase()}}</h3>`
 });
 
 Vue.component("flyer-image", {
-  props: ["imagePath", "borderColor"],
+  props: ["govtrackId", "borderColor"],
   data: function() {
     return {
       styleObject: {
@@ -348,6 +287,11 @@ Vue.component("flyer-image", {
         marginTop: "20px"
       }
     };
+  },
+  computed: {
+    imagePath: function() {
+      return "https://www.govtrack.us/data/photos/" + this.govtrackId + ".jpeg"
+    }
   },
   template: `
     <div v-bind:style="borderObject">
@@ -372,7 +316,7 @@ Vue.component("flyer-district", {
 });
 
 Vue.component("flyer-cta", {
-  props: ["fullName", "phone", "divColor"],
+  props: ["displayName", "phone", "divColor"],
   data: function() {
     return {
       styleObject: {
@@ -400,7 +344,7 @@ Vue.component("flyer-cta", {
   },
   template: `
     <div v-bind:style="styleObject" class="raleway">
-      <h4 v-bind:style="textStyle"><b>Call&nbsp;and&nbsp;ask&nbsp;{{fullName}}<br>to&nbsp;have&nbsp;a&nbsp;town&nbsp;hall:&nbsp;{{phone}}</b></h4>
+      <h4 v-bind:style="textStyle"><b>Call&nbsp;and&nbsp;ask&nbsp;{{displayName}}<br>to&nbsp;have&nbsp;a&nbsp;town&nbsp;hall:&nbsp;{{phone}}</b></h4>
       <div v-bind:style="divStyle"></div>
       <h4 v-bind:style="textStyle">Get&nbsp;town&nbsp;hall&nbsp;and&nbsp;other&nbsp;event&nbsp;notifications&nbsp;at<br><b>townhallproject.com</b></h4>
     </div>`
@@ -457,7 +401,7 @@ const routes = [
     component: StateViewComponent,
     props: true
   },
-  { path: "/m=:member",
+  { path: "/m=:memberId",
     component: MemberViewComponent,
     props: true
   },
