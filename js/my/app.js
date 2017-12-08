@@ -93,7 +93,6 @@ const MemberViewComponent = {
       // link.href = img;
 
       html2canvas(document.getElementById("targetFlyer"), {
-        allowTaint: true,
         useCORS: true
       }).then(function(canvas) {
         // let img = new Image();
@@ -117,7 +116,7 @@ const MemberViewComponent = {
   // },
   template: `
     <div>
-      <p>Entered MemberView for: {{memberId}}</p>
+      <p>Entered MemberView for: {{memberId}}, using CORS</p>
       <a id="imageDownloadButton" v-on:click="generateAndLinkDownloadOptions">Download Flyer Image</a>
       <div v-if="memberIsLoaded">
         <flyer v-bind:id="'targetFlyer'" v-bind:memberData="memberData"></flyer>
