@@ -96,10 +96,6 @@ const MemberViewComponent = {
         allowTaint: true,
         useCORS: true
       }).then(function(canvas) {
-        let img = new Image();
-        // img.setAttribute("crossOrigin", "anonymous");
-        img.setAttribute("src", canvas.toDataURL("image/png").replace(/^data:image\/[^;]/, "data:application/octet-stream"));
-
         let img = canvas.toDataURL("image/png").replace(/^data:image\/[^;]/, "data:application/octet-stream");
 
         let link = document.getElementById("imageDownloadButton");
