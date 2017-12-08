@@ -93,16 +93,14 @@ const MemberViewComponent = {
       // link.href = img;
 
       html2canvas(document.getElementById("targetFlyer"), {
+        allowTaint: true,
         useCORS: true
       }).then(function(canvas) {
-        // let img = new Image();
-        // // img.setAttribute("crossOrigin", "anonymous");
-        // img.setAttribute("src", canvas.toDataURL("image/png").replace(/^data:image\/[^;]/, "data:application/octet-stream"));
-
-        // let img = canvas.toDataURL("image/png");
         let img = new Image();
-        img.src = canvas.toDataURL("image/png");
-        img.crossOrigin = "anonymous";
+        // img.setAttribute("crossOrigin", "anonymous");
+        img.setAttribute("src", canvas.toDataURL("image/png").replace(/^data:image\/[^;]/, "data:application/octet-stream"));
+
+        let img = canvas.toDataURL("image/png").replace(/^data:image\/[^;]/, "data:application/octet-stream");
 
         let link = document.getElementById("imageDownloadButton");
         link.download = ("missing_member_flyer.png");
@@ -119,7 +117,7 @@ const MemberViewComponent = {
   // },
   template: `
     <div>
-      <p>Entered MemberView for: {{memberId}}, using anonymous</p>
+      <p>Entered MemberView for: {{memberId}}, allow taint</p>
       <a id="imageDownloadButton" v-on:click="generateAndLinkDownloadOptions">Download Flyer Image</a>
       <div v-if="memberIsLoaded">
         <flyer v-bind:id="'targetFlyer'" v-bind:memberData="memberData"></flyer>
