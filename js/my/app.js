@@ -92,19 +92,29 @@ const MemberViewComponent = {
       // link.download = "missing_member_flyer.png";
       // link.href = img;
 
-      html2canvas(document.getElementById("targetCanvas"), {
+      html2canvas(document.getElementById("targetFlyer"), {
         allowTaint: true,
-        useCORS: true,
-  		  onrendered: function(canvas) {
-          let img = canvas.toDataURL();
+        useCORS: true
+      }).then(function(canvas) {
+        // let img = new Image();
+        // // img.setAttribute("crossOrigin", "anonymous");
+        // img.setAttribute("src", canvas.toDataURL("image/png").replace(/^data:image\/[^;]/, "data:application/octet-stream"));
 
-          let link = document.getElementById("imageDownloadButton");
-          link.download = ("missing_member_flyer.png");
-          link.href = img;
-  		  }
-  		});
+        let img = canvas.toDataURL("image/png").replace(/^data:image\/[^;]/, "data:application/octet-stream");
+
+        let link = document.getElementById("imageDownloadButton");
+        link.download = ("missing_member_flyer.png");
+        link.href = img;
+      });
     }
   },
+  // mounted: function() {
+  //   this.canvasReady = true;
+  //
+  //   this.$nextTick(function () {
+  //     this.generateAndLinkDownloadOptions();
+  //   });
+  // },
   template: `
     <div>
       <p>Entered MemberView for: {{memberId}}</p>
