@@ -5,38 +5,46 @@
 // These can be imported from other files
 
 const EntranceComponent = {
-  template: `
-    <div>
-      <p>Entered Main</p>
-      <image-link
-      v-for="(item, key, index) in repList"
-      v-bind:key="index"
-      v-bind:objectDetails="item"
-      v-bind:height="300"
-      v-bind:width="200"
-      v-bind:routeTarget="('m=' + key)"
-      ></image-link>
-    </div>`
-};
-
-Vue.component("image-link", {
-  props: ["objectDetails", "height", "width", "routeTarget"],
+  data: function() {
+    return {
+      dataIsLoaded: false,
+      linkStyle: {
+        color: 'blue',
+        textDecoration: 'underline'
+      }
+    };
+  },
+  firebase: function() {
+    return {
+      memberData: {
+        source: firebaseDB.ref("/mocData/"),
+        asObject: true,
+        cancelCallback: function() {
+          console.log("Data pull for " + this.memberId + " failed...");
+        },
+        readyCallback: function() {
+          console.log("Data pull for " + this.memberId + " complete");
+          this.dataIsLoaded = true;
+        }
+      }
+    };
+  },
   methods: {
-    routeToTarget: function() {
-      this.$router.push(this.routeTarget);
+    routeToMember: function(g_id) {
+      this.$router.push("m=" + g_id);
     }
   },
   template: `
-    <div>
-      <img
-      v-bind:src="objectDetails.photo"
-      v-bind:height="height"
-      v-bind:width="width"
-      v-on:click="routeToTarget"
-      >
-      <p>{{routeTarget}}</p>
+    <div v-if="dataIsLoaded">
+      <div v-for="(value, key, index) in memberData">
+        <a
+          v-on:click="routeToMember(key)"
+          v-bind:key="index"
+          v-bind:style="linkStyle"
+        >{{value.displayName}}</a>
+      </div>
     </div>`
-});
+};
 
 const StateViewComponent = {
   props: ["state"],
@@ -75,23 +83,6 @@ const MemberViewComponent = {
   },
   methods: {
     generateAndLinkDownloadOptions: function() {
-      // let canvas = document.getElementById("targetCanvas");
-      // let context = canvas.getContext("2d");
-      // let imgHTML = document.getElementById("targetFlyer");
-      // let options = {
-      //   height: imgHTML.offsetHeight,
-      //   width: imgHTML.offsetWidth
-      // };
-      //
-      // rasterizeHTML.drawHTML(imgHTML.outerHTML).then(function(renderResult) {
-      //   context.drawImage(renderResult.image, 0, 0);
-      // });
-      //
-      // let img = canvas.toDataURL("image/png").replace("image/png", "image/octet-stream");
-      // let link = document.getElementById("imageDownloadButton");
-      // link.download = "missing_member_flyer.png";
-      // link.href = img;
-
       html2canvas(document.getElementById("targetFlyer"), {
         useCORS: true
       }).then(function(canvas) {
@@ -103,16 +94,9 @@ const MemberViewComponent = {
       });
     }
   },
-  // mounted: function() {
-  //   this.canvasReady = true;
-  //
-  //   this.$nextTick(function () {
-  //     this.generateAndLinkDownloadOptions();
-  //   });
-  // },
   template: `
     <div>
-      <p>Entered MemberView for: {{memberId}}, no taint</p>
+      <p>Entered MemberView for: {{memberId}}</p>
       <a id="imageDownloadButton" v-on:click="generateAndLinkDownloadOptions">Download Flyer Image</a>
       <div v-if="memberIsLoaded">
         <flyer v-bind:id="'targetFlyer'" v-bind:memberData="memberData"></flyer>
@@ -198,7 +182,7 @@ Vue.component("flyer", {
           <flyer-header v-bind:textColor="partyColor"></flyer-header>
           <flyer-label v-bind:heldTownhall="memberData.missingMember"></flyer-label>
           <flyer-name v-bind:type="memberData.type" v-bind:displayName="memberData.displayName"></flyer-name>
-          <flyer-image v-bind:govtrackId="memberData.govtrack_id" v-bind:borderColor="partyColor"></flyer-image>
+          <flyer-image v-bind:displayName="memberData.displayName" v-bind:borderColor="partyColor"></flyer-image>
           <flyer-district v-bind:displayMessage="flyerMemberLabel"></flyer-district>
           <flyer-cta v-bind:displayName="memberData.displayName" v-bind:phone="memberData.phone" v-bind:divColor="partyColor"></flyer-cta>
           <flyer-footer v-bind:textColor="partyColor"></flyer-footer>
@@ -273,7 +257,7 @@ Vue.component("flyer-name", {
 });
 
 Vue.component("flyer-image", {
-  props: ["govtrackId", "borderColor"],
+  props: ["displayName", "borderColor"],
   data: function() {
     return {
       styleObject: {
@@ -295,7 +279,7 @@ Vue.component("flyer-image", {
   },
   computed: {
     imagePath: function() {
-      return "https://www.govtrack.us/data/photos/" + this.govtrackId + ".jpeg"
+      return ("../../resources/" + this.displayName.replace(' ', '_') + ".jpg");
     }
   },
   template: `
@@ -314,10 +298,17 @@ Vue.component("flyer-district", {
         lineHeight: "92px",
         margin: "0px",
         marginTop: "40px"
+      },
+      widthStyle: {
+        width: '80%',
+        margin: 'auto'
       }
     };
   },
-  template: `<h3 v-bind:style="styleObject" class="montserrat">{{displayMessage}}</h3>`
+  template: `
+    <div v-bind:style="widthStyle">
+      <h3 v-bind:style="styleObject" class="montserrat">{{displayMessage}}</h3>
+    </div>`
 });
 
 Vue.component("flyer-cta", {
