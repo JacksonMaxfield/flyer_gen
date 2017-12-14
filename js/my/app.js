@@ -279,7 +279,7 @@ Vue.component("flyer-image", {
   },
   computed: {
     imagePath: function() {
-      return ("../../resources/" + this.displayName.replace(' ', '_') + ".jpg");
+      return ("resources/" + this.displayName.replace(' ', '_') + ".jpg");
     }
   },
   template: `
