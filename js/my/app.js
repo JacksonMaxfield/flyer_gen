@@ -37,20 +37,12 @@ const EntranceComponent = {
   template: `
     <div v-if="dataIsLoaded">
       <div v-for="(value, key, index) in memberData">
-        <a
+        <a v-if="value.in_office"
           v-on:click="routeToMember(key)"
           v-bind:key="index"
           v-bind:style="linkStyle"
         >{{value.displayName}}</a>
       </div>
-    </div>`
-};
-
-const StateViewComponent = {
-  props: ["state"],
-  template: `
-    <div>
-      <p>Entered StateView for: {{state}}</p>
     </div>`
 };
 
@@ -182,7 +174,7 @@ Vue.component("flyer", {
           <flyer-header v-bind:textColor="partyColor"></flyer-header>
           <flyer-label v-bind:heldTownhall="memberData.missingMember"></flyer-label>
           <flyer-name v-bind:type="memberData.type" v-bind:displayName="memberData.displayName"></flyer-name>
-          <flyer-image v-bind:displayName="memberData.displayName" v-bind:borderColor="partyColor"></flyer-image>
+          <flyer-image v-bind:govtrackid="memberData.govtrack_id" v-bind:borderColor="partyColor"></flyer-image>
           <flyer-district v-bind:displayMessage="flyerMemberLabel"></flyer-district>
           <flyer-cta v-bind:displayName="memberData.displayName" v-bind:phone="memberData.phone" v-bind:divColor="partyColor"></flyer-cta>
           <flyer-footer v-bind:textColor="partyColor"></flyer-footer>
@@ -250,14 +242,43 @@ Vue.component("flyer-name", {
         margin: "auto",
         marginTop: "40px",
         width: "80%"
+      },
+      reducedStyle: {
+        color: "grey",
+        fontSize: "68px",
+        lineHeight: "100px",
+        textAlign: "center",
+        margin: "auto",
+        marginTop: "40px",
+        width: "80%"
+      },
+      veryReduced: {
+        color: "grey",
+        fontSize: "54px",
+        lineHeight: "100px",
+        textAlign: "center",
+        margin: "auto",
+        marginTop: "40px",
+        width: "80%"
       }
     };
   },
-  template: `<h3 v-bind:style="styleObject" class="montserrat">{{type.toUpperCase()}}.&nbsp;{{displayName.toUpperCase()}}</h3>`
+  computed: {
+    trueStyle: function() {
+      if (this.displayName.length > 14) {
+        return this.reducedStyle;
+      } else if (this.displayName.length > 20) {
+        return this.veryReduced;
+      } else {
+        return this.styleObject;
+      }
+    }
+  },
+  template: `<h3 v-bind:style="trueStyle" class="montserrat">{{type.toUpperCase()}}.&nbsp;{{displayName.toUpperCase()}}</h3>`
 });
 
 Vue.component("flyer-image", {
-  props: ["displayName", "borderColor"],
+  props: ["govtrackid", "borderColor"],
   data: function() {
     return {
       styleObject: {
@@ -279,7 +300,7 @@ Vue.component("flyer-image", {
   },
   computed: {
     imagePath: function() {
-      return ("resources/" + this.displayName.replace(' ', '_') + ".jpg");
+      return ("resources/" + this.govtrackid + ".jpg");
     }
   },
   template: `
@@ -392,10 +413,6 @@ Vue.component("flyer-footer", {
 const routes = [
   { path: "/",
     component: EntranceComponent
-  },
-  { path: "/s=:state",
-    component: StateViewComponent,
-    props: true
   },
   { path: "/m=:memberId",
     component: MemberViewComponent,

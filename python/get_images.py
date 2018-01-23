@@ -21,7 +21,8 @@ def get_wiki_image(url):
     card = soup.find('table', class_='infobox vcard')
 
     try:
-        img = card.find('img')
+        link = card.find('a', _class='image')
+        img = link.find('img')
 
         try:
             return img['src']
@@ -29,20 +30,17 @@ def get_wiki_image(url):
             return img['srcset']
 
     except:
-        img = card.find('a', class_='image')
-        return img['href']
+        raise ValueError('no image src available')
 
-    # print(src)
-
-def try_find_image(lost, found, url, name):
+def try_find_image(lost, found, url, govtrackid):
     try:
         found_url = get_wiki_image('https://en.wikipedia.org/wiki/' + url)
         if 'https:' not in found_url:
             found_url = 'https:' + found_url
 
-        found[name] = found_url
+        found[govtrackid] = found_url
 
-    except:
+    except ValueError as e:
         lost.append('https://en.wikipedia.org/wiki/' + url)
 
     return lost, found
@@ -71,23 +69,27 @@ def process_mocs_data(mocs_data, overwrite=False):
 
     for key in mocs_data:
 
-        try:
-            url = mocs_data[key]['wikipedia_id'].replace(' ', '_')
+        print(key)
 
-            lost, found = try_find_image(lost, found, url, mocs_data[key]['displayName'].replace(' ', '_'))
+        if mocs_data[key]['in_office'] == 'true':
 
-        except Exception as e:
-            if str(e) == "'wikipedia_id'":
-                try:
-                    url = mocs_data[key]['displayName'].replace(' ', '_')
+            try:
+                url = mocs_data[key]['wikipedia_id'].replace(' ', '_')
 
-                    lost, found = try_find_image(lost, found, url, mocs_data[key]['displayName'].replace(' ', '_'))
+                lost, found = try_find_image(lost, found, url, mocs_data[key]['govtrack_id'])
 
-                except Exception as e:
-                    print(e)
+            except Exception as e:
+                if str(e) == "'wikipedia_id'":
+                    try:
+                        url = mocs_data[key]['displayName'].replace(' ', '_')
 
-            else:
-                print('no wikipedia_id for:', mocs_data[key]['displayName'].replace(' ', '_'))
+                        lost, found = try_find_image(lost, found, url, mocs_data[key]['displayName'].replace(' ', '_'))
+
+                    except Exception as e:
+                        print(e)
+
+                else:
+                    print('no wikipedia_id for:', mocs_data[key]['displayName'].replace(' ', '_'))
 
     if len(lost) > 0:
         print('unable to get image url from:')
@@ -101,6 +103,8 @@ def run_image_get():
 
     found_urls = process_mocs_data(mocs_data)
 
-    download_images(found_urls)
+    pprint(found_urls)
+
+    # download_images(found_urls)
 
 run_image_get()
