@@ -8,103 +8,50 @@ from pprint import pprint
 dir_path = os.path.dirname(os.path.realpath(__file__))
 parent_path = os.path.dirname(dir_path)
 
-# to update the
-
-def get_json_mocs():
-    with open(dir_path + '/mocs.json', 'r') as mocs_file:
-        return json.load(mocs_file)
-
-def get_wiki_image(url):
-    r = requests.get(url)
-    soup = bs(r.content, 'html.parser')
-
-    card = soup.find('table', class_='infobox vcard')
-
-    try:
-        link = card.find('a', _class='image')
-        img = link.find('img')
-
-        try:
-            return img['src']
-        except:
-            return img['srcset']
-
-    except:
-        raise ValueError('no image src available')
-
-def try_find_image(lost, found, url, govtrackid):
-    try:
-        found_url = get_wiki_image('https://en.wikipedia.org/wiki/' + url)
-        if 'https:' not in found_url:
-            found_url = 'https:' + found_url
-
-        found[govtrackid] = found_url
-
-    except ValueError as e:
-        lost.append('https://en.wikipedia.org/wiki/' + url)
-
-    return lost, found
-
-def download_file(url, filename):
-    r = requests.get(url, stream=True)
-
-    ending = url[-4:]
-    if '.' not in ending:
-        ending = '.jpg'
-
-    with open(parent_path + '/resources/' + filename + ending, 'wb') as f:
-        for chunk in r.iter_content(chunk_size=1024):
-            if chunk:
-                f.write(chunk)
-
-    return filename
-
-def download_images(named_urls):
-    for key, value in named_urls.items():
-        download_file(url=value, filename=key)
-
-def process_mocs_data(mocs_data, overwrite=False):
-    lost = list()
-    found = dict()
-
-    for key in mocs_data:
-
-        print(key)
-
-        if mocs_data[key]['in_office'] == 'true':
-
-            try:
-                url = mocs_data[key]['wikipedia_id'].replace(' ', '_')
-
-                lost, found = try_find_image(lost, found, url, mocs_data[key]['govtrack_id'])
-
-            except Exception as e:
-                if str(e) == "'wikipedia_id'":
-                    try:
-                        url = mocs_data[key]['displayName'].replace(' ', '_')
-
-                        lost, found = try_find_image(lost, found, url, mocs_data[key]['displayName'].replace(' ', '_'))
-
-                    except Exception as e:
-                        print(e)
-
-                else:
-                    print('no wikipedia_id for:', mocs_data[key]['displayName'].replace(' ', '_'))
-
-    if len(lost) > 0:
-        print('unable to get image url from:')
-        pprint(lost)
-
-    return found
-
+# to update the mocs.json copy the allMocs.js function into a console and then run the function in the console
 def run_image_get():
+    mocs_data = dict()
+    with open(dir_path + '/mocs.json', 'r', encoding='latin') as mocs_file:
+        mocs_data = json.load(mocs_file)
 
-    mocs_data = get_json_mocs()
+    base_wiki_url = 'https://en.wikipedia.org'
 
-    found_urls = process_mocs_data(mocs_data)
-
-    pprint(found_urls)
-
-    # download_images(found_urls)
+    for key, moc in mocs_data.items():
+        try:
+            if moc['in_office']:
+                try:
+                    wiki_id = '/wiki/' + moc['wikipedia_id'].replace(' ', '_')
+                    url = base_wiki_url + wiki_id
+                    r = requests.get(url)
+                    soup = bs(r.content, 'html.parser')
+                    # try:
+                    #     card = soup.find('table', class_='infobox vcard')
+                    #     img_link = card.find('a', class_='image')['href']
+                    #     img_link = base_wiki_url + img_link
+                    #
+                    #     r = requests.get(img_link)
+                    #     soup = bs(r.content, 'html.parser')
+                    #     file_div = soup.find('div', class_='fullImageLink')
+                    #     link = file_div.find('a')['href']
+                    #
+                    #     if 'https:' not in link:
+                    #         link = 'https:' + link
+                    #
+                    #     r = requests.get(link, stream=True)
+                    #     ending = url[-4:]
+                    #     if '.' not in ending:
+                    #         ending = '.jpg'
+                    #
+                    #     with open(parent_path + '/resources/' + moc['govtrack_id'] + ending, 'wb') as f:
+                    #         for chunk in r.iter_content(chunk_size=1024):
+                    #             if chunk:
+                    #                 f.write(chunk)
+                    #
+                    # except AttributeError as e:
+                    #     print('failed to find image for:', moc['govtrack_id'], url.encode('latin'))
+                except KeyError as e:
+                    print('no wiki url:', moc['govtrack_id'], moc['displayName'].encode('latin'))
+        except KeyError as e:
+            pass
 
 run_image_get()

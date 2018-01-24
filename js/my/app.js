@@ -7,11 +7,28 @@
 const EntranceComponent = {
   data: function() {
     return {
-      dataIsLoaded: false,
-      linkStyle: {
-        color: 'blue',
-        textDecoration: 'underline'
-      }
+        dataIsLoaded: false,
+        linkContainer: {
+            display: "flex",
+            width: "80%",
+            margin: "100px 10%",
+            flexWrap: "wrap"
+        },
+        headerContainer: {
+            width: "100%",
+            height: "60px",
+            backgroundColor: "#4DAADF",
+            textAlign: "left"
+        },
+        headerText: {
+            lineHeight: "60x",
+            fontFamily: "Raleway, sans-serif",
+            fontSize: "40px",
+            fontWeight: "bold",
+            color: "white",
+            margin: "0px",
+            padding: "5px 20px"
+        }
     };
   },
   firebase: function() {
@@ -29,22 +46,70 @@ const EntranceComponent = {
       }
     };
   },
-  methods: {
-    routeToMember: function(g_id) {
-      this.$router.push("m=" + g_id);
-    }
-  },
   template: `
-    <div v-if="dataIsLoaded">
-      <div v-for="(value, key, index) in memberData">
-        <a v-if="value.in_office"
-          v-on:click="routeToMember(key)"
-          v-bind:key="index"
-          v-bind:style="linkStyle"
-        >{{value.displayName}}</a>
-      </div>
+    <div>
+        <div v-bind:style="headerContainer">
+            <h2 v-bind:style="headerText">Missing Member Flyers</h2>
+        </div>
+
+        <div v-if="dataIsLoaded" v-bind:style="linkContainer">
+          <div v-for="(value, key, index) in memberData">
+            <member-link v-if="value.in_office" v-bind:memberData="value"></member-link>
+
+          </div>
+        </div>
     </div>`
 };
+
+Vue.component("member-link", {
+    props: ["memberData"],
+    data: function() {
+        return {
+            objectStyle: {
+                width: "200px",
+                margin: "20px",
+                padding: "20px",
+                border: "1px solid grey",
+                borderRadius: "6px",
+                boxShadow: "0 2px 4px rgba(0, 0, 0, 0.15)"
+            },
+            hoverStyle: {
+                width: "200px",
+                margin: "20px",
+                padding: "20px",
+                border: "1px solid grey",
+                borderRadius: "6px",
+                boxShadow: "0 3px 6px rgba(0, 0, 0, 0.3)",
+                cursor: "pointer"
+            },
+            nameStyle: {
+                fontFamily: "Raleway, sans-serif",
+                fontWeight: "bold",
+                margin: "0px"
+            },
+            stateStyle: {
+                fontFamily: "Raleway, sans-serif",
+                fontWeight: "light",
+                margin: "10px 0px 0px 0px"
+            },
+            hover: false
+        };
+    },
+    methods: {
+      routeToMember: function() {
+        this.$router.push("m=" + this.memberData["govtrack_id"]);
+      }
+    },
+    template: `
+        <div v-if="hover" v-on:mouseleave="hover = !hover" v-bind:style="hoverStyle" v-on:click="routeToMember">
+            <h3 v-bind:style="nameStyle">{{memberData.displayName}}</h3>
+            <p v-bind:style="stateStyle">{{memberData.stateName}}</p>
+        </div>
+        <div v-else v-on:mouseenter="hover = !hover" v-bind:style="objectStyle">
+            <h3 v-bind:style="nameStyle">{{memberData.displayName}}</h3>
+            <p v-bind:style="stateStyle">{{memberData.stateName}}</p>
+        </div>`
+});
 
 const MemberViewComponent = {
   props: ["memberId"],

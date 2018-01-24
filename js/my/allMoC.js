@@ -1,18 +1,20 @@
-console.log("starting json creation");
+function downloadMoC() {
+    console.log("starting json creation");
 
-let allMoCs = firebaseDB.ref("/mocData/").once("value").then(function(snapshot) {
+    let allMoCs = firebaseDB.ref("/mocData/").once("value").then(function(snapshot) {
 
-  console.log("json pull complete");
+      console.log("json pull complete");
 
-  let str = JSON.stringify(snapshot);
+      let str = JSON.stringify(snapshot);
 
-  let path = "mocs.json";
-  let blob = new Blob([str], {type: "text/plain"});
+      let path = "mocs.json";
+      let blob = new Blob([str], {type: "text/plain"});
 
-  console.log("created blob");
+      console.log("created blob");
 
-  saveAs(blob, path);
+      saveAs(blob, path);
 
-  console.log("saved blob");
+      console.log("saved blob");
 
-});
+    });
+};
