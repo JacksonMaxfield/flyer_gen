@@ -16,18 +16,18 @@ const EntranceComponent = {
         },
         headerContainer: {
             width: "100%",
-            height: "60px",
+            height: "40px",
             backgroundColor: "#4DAADF",
             textAlign: "left"
         },
         headerText: {
-            lineHeight: "60x",
+            lineHeight: "44x",
             fontFamily: "Raleway, sans-serif",
-            fontSize: "40px",
+            fontSize: "30px",
             fontWeight: "bold",
             color: "white",
             margin: "0px",
-            padding: "5px 20px"
+            padding: "2px 20px"
         }
     };
   },
@@ -37,10 +37,10 @@ const EntranceComponent = {
         source: firebaseDB.ref("/mocData/"),
         asObject: true,
         cancelCallback: function() {
-          console.log("Data pull for " + this.memberId + " failed...");
+          console.log("Data pull for all members failed...");
         },
         readyCallback: function() {
-          console.log("Data pull for " + this.memberId + " complete");
+          console.log("Data pull for all members complete");
           this.dataIsLoaded = true;
         }
       }
@@ -115,12 +115,57 @@ const MemberViewComponent = {
   props: ["memberId"],
   data: function() {
     return {
-      memberIsLoaded: false,
-      canvasStyle: {
-        display: "none",
-        height: "2458px",
-        width: "1708px"
-      }
+        memberIsLoaded: false,
+        canvasStyle: {
+            display: "none",
+            height: "2458px",
+            width: "1708px"
+        },
+        headerContainer: {
+            width: "100%",
+            height: "40px",
+            backgroundColor: "#4DAADF",
+            textAlign: "left"
+        },
+        headerText: {
+            lineHeight: "44x",
+            fontFamily: "Raleway, sans-serif",
+            fontSize: "30px",
+            fontWeight: "bold",
+            color: "white",
+            margin: "0px",
+            padding: "2px 20px",
+            cursor: "pointer"
+        },
+        downloadStyle: {
+            height: "40px",
+            width: "350px",
+            padding: "20px",
+            margin: "40px 40px",
+            backgroundColor: "#FF544B",
+            borderRadius: "6px",
+            boxShadow: "0 2px 4px rgba(0, 0, 0, 0.35)",
+            cursor: "pointer"
+        },
+        downloadHover: {
+            height: "40px",
+            width: "350px",
+            padding: "20px",
+            margin: "40px 40px",
+            backgroundColor: "#FF544B",
+            borderRadius: "6px",
+            boxShadow: "0 2px 4px rgba(0, 0, 0, 0.7)",
+            cursor: "pointer"
+        },
+        downloadText: {
+            fontColor: "white",
+            fontSize: "30px",
+            padding: "5px 0px",
+            textDecoration: "none",
+            fontFamily: "Montserrat, sans-serif"
+        },
+        downloadReady: false,
+        hover: false
     };
   },
   firebase: function() {
@@ -138,6 +183,15 @@ const MemberViewComponent = {
       }
     };
   },
+  computed: {
+      downloadLabel: function() {
+          if (this.downloadReady) {
+              return "Download Flyer Image";
+          } else {
+              return "Generate Flyer Image";
+          }
+      }
+  },
   methods: {
     generateAndLinkDownloadOptions: function() {
       html2canvas(document.getElementById("targetFlyer"), {
@@ -149,19 +203,33 @@ const MemberViewComponent = {
         link.download = ("missing_member_flyer.png");
         link.href = img;
       });
+
+      this.downloadReady = true;
+    },
+    returnHome: function() {
+        this.$router.push("/");
     }
   },
   template: `
     <div>
-      <p>Entered MemberView for: {{memberId}}</p>
-      <a id="imageDownloadButton" v-on:click="generateAndLinkDownloadOptions">Download Flyer Image</a>
-      <div v-if="memberIsLoaded">
-        <flyer v-bind:id="'targetFlyer'" v-bind:memberData="memberData"></flyer>
-        <canvas v-bind:id="'targetCanvas'" v-bind:style="canvasStyle"></canvas>
-      </div>
-      <div v-else>
-        <p>loading flyer...</p>
-      </div>
+        <div v-bind:style="headerContainer">
+            <h2 v-on:click="returnHome" v-bind:style="headerText">Missing Member Flyers</h2>
+        </div>
+
+        <div v-if="hover" v-on:mouseleave="hover = !hover"  v-bind:style="downloadHover">
+            <a id="imageDownloadButton" v-bind:style="downloadText"  v-on:click="generateAndLinkDownloadOptions">{{downloadLabel}}</a>
+        </div>
+        <div v-else v-on:mouseenter="hover = !hover" v-bind:style="downloadStyle">
+            <a id="imageDownloadButton" v-bind:style="downloadText"  v-on:click="generateAndLinkDownloadOptions">{{downloadLabel}}</a>
+        </div>
+
+        <div v-if="memberIsLoaded">
+            <flyer v-bind:id="'targetFlyer'" v-bind:memberData="memberData"></flyer>
+            <canvas v-bind:id="'targetCanvas'" v-bind:style="canvasStyle"></canvas>
+        </div>
+        <div v-else>
+            <p>loading flyer...</p>
+        </div>
     </div>`
 };
 
