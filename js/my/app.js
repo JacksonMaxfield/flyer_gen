@@ -349,7 +349,7 @@ Vue.component("flyer-label", {
         borderTop: "16px solid grey",
         borderBottom: "16px solid grey",
         color: "grey",
-        fontSize: "56px",
+        fontSize: "46px",
         fontWeight: "400",
         lineHeight: "68px",
         textAlign: "center",
@@ -360,7 +360,7 @@ Vue.component("flyer-label", {
     };
   },
   template: `
-    <h3 v-bind:style="styleObject" class="raleway"><b>ZERO</b>&nbsp;IN-PERSON&nbsp;TOWN&nbsp;HALLS&nbsp;SINCE&nbsp;JAN,&nbsp;1&nbsp;2017</h3>`
+    <h3 v-bind:style="styleObject" class="raleway"><b>ZERO</b>&nbsp;IN-PERSON&nbsp;TOWN&nbsp;HALLS&nbsp;SINCE&nbsp;JAN&nbsp;1,&nbsp;2017</h3>`
 });
 
 Vue.component("flyer-name", {
