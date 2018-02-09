@@ -360,7 +360,7 @@ Vue.component("flyer-label", {
     };
   },
   template: `
-    <h3 v-bind:style="styleObject" class="raleway"><b>ZERO</b>&nbsp;IN-PERSON&nbsp;TOWN&nbsp;HALLS&nbsp;IN&nbsp;2017</h3>`
+    <h3 v-bind:style="styleObject" class="raleway"><b>ZERO</b>&nbsp;IN-PERSON&nbsp;TOWN&nbsp;HALLS&nbsp;SINCE&nbsp;JAN,&nbsp;1&nbsp;2017</h3>`
 });
 
 Vue.component("flyer-name", {
