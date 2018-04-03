@@ -41,6 +41,8 @@ def run_image_get():
                         ending = url[-4:]
                         if '.' not in ending:
                             ending = '.jpg'
+                        if '_Jr' in ending:
+                            ending = '.jpg'
 
                         with open(parent_path + '/resources/' + moc['govtrack_id'] + ending, 'wb') as f:
                             for chunk in r.iter_content(chunk_size=1024):
