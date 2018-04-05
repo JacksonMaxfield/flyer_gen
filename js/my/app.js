@@ -54,8 +54,7 @@ const EntranceComponent = {
 
         <div v-if="dataIsLoaded" v-bind:style="linkContainer">
           <div v-for="(value, key, index) in memberData">
-            <member-link v-if="value.in_office" v-bind:memberData="value"></member-link>
-
+            <member-link v-if="value.in_office && value.missingMember" v-bind:memberData="value"></member-link>
           </div>
         </div>
     </div>`
