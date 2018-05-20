@@ -163,7 +163,6 @@ const MemberViewComponent = {
             textDecoration: "none",
             fontFamily: "Montserrat, sans-serif"
         },
-        downloadReady: false,
         hover: false
     };
   },
@@ -182,28 +181,16 @@ const MemberViewComponent = {
       }
     };
   },
-  computed: {
-      downloadLabel: function() {
-          if (this.downloadReady) {
-              return "Download Flyer Image";
-          } else {
-              return "Generate Flyer Image";
-          }
-      }
-  },
   methods: {
     generateAndLinkDownloadOptions: function() {
       html2canvas(document.getElementById("targetFlyer"), {
         useCORS: true
       }).then(function(canvas) {
-        let img = canvas.toDataURL("image/png").replace(/^data:image\/[^;]/, "data:application/octet-stream");
+        imageData = canvas.toDataURL("image/jpeg").replace(/^data:image\/[^;]/, "data:application/octet-stream");
 
         let link = document.getElementById("imageDownloadButton");
-        link.download = ("missing_member_flyer.png");
-        link.href = img;
+        link.onclick = download(imageData, ("missing_member_flyer.jpeg"), "image/jpeg");
       });
-
-      this.downloadReady = true;
     },
     returnHome: function() {
         this.$router.push("/");
@@ -216,10 +203,10 @@ const MemberViewComponent = {
         </div>
 
         <div v-if="hover" v-on:mouseleave="hover = !hover"  v-bind:style="downloadHover">
-            <a id="imageDownloadButton" v-bind:style="downloadText"  v-on:click="generateAndLinkDownloadOptions">{{downloadLabel}}</a>
+            <a id="imageDownloadButton" v-bind:style="downloadText"  v-on:click="generateAndLinkDownloadOptions">Download Flyer Image</a>
         </div>
         <div v-else v-on:mouseenter="hover = !hover" v-bind:style="downloadStyle">
-            <a id="imageDownloadButton" v-bind:style="downloadText"  v-on:click="generateAndLinkDownloadOptions">{{downloadLabel}}</a>
+            <a id="imageDownloadButton" v-bind:style="downloadText"  v-on:click="generateAndLinkDownloadOptions">Download Flyer Image</a>
         </div>
 
         <div v-if="memberIsLoaded">
