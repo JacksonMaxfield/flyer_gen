@@ -18,7 +18,16 @@ def run_image_get():
 
     for key, moc in mocs_data.items():
         try:
-            if moc['in_office']:
+            save_path = (parent_path +
+                        '/resources/')
+
+            saved_images = os.listdir(save_path)
+            already_stored = any(
+                    [str(moc['govtrack_id']) in img for img in saved_images])
+
+            print('already stored:', moc['govtrack_id'], already_stored)
+
+            if moc['in_office'] and not already_stored:
                 try:
                     wiki_id = '/wiki/' + moc['wikipedia_id'].replace(' ', '_')
                     url = base_wiki_url + wiki_id
@@ -44,10 +53,13 @@ def run_image_get():
                         if '_Jr' in ending:
                             ending = '.jpg'
 
-                        with open(parent_path + '/resources/' + moc['govtrack_id'] + ending, 'wb') as f:
+                        save_path += (moc['govtrack_id'] + ending)
+                        with open(save_path, 'wb') as f:
                             for chunk in r.iter_content(chunk_size=1024):
                                 if chunk:
                                     f.write(chunk)
+
+                        print('stored image for', moc['govtrack_id'])
 
                     except AttributeError as e:
                         print('failed to find image for:', moc['govtrack_id'], url.encode('latin'))

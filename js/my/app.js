@@ -270,14 +270,16 @@ Vue.component("flyer", {
           message += this.memberData.district;
         }
 
-        if (this.memberData.district > 3) {
-          message += "th ";
-        } else if (this.memberData.district == 3) {
-          message += "rd ";
-        } else if (this.memberData.district == 2) {
-          message += "nd ";
-        } else {
+        // console.log(this.memberData.district.toString().endsWith('2'));
+
+        if (this.memberData.district.toString().endsWith('1')) {
           message += "st ";
+        } else if (this.memberData.district.toString().endsWith('2')) {
+          message += "nd ";
+        } else if (this.memberData.district.toString().endsWith('3')) {
+          message += "rd ";
+        } else {
+          message += "th";
         }
 
         message += "congressional district";
