@@ -8,7 +8,8 @@ from pprint import pprint
 dir_path = os.path.dirname(os.path.realpath(__file__))
 parent_path = os.path.dirname(dir_path)
 
-# to update the mocs.json uncomment the last script tag in index.html and reload the window.
+# to update the mocs.json uncomment the last script tag in index.html and
+# reload the window.
 def run_image_get():
     mocs_data = dict()
     with open(dir_path + '/mocs.json', 'r', encoding='latin') as mocs_file:
