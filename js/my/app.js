@@ -279,7 +279,7 @@ Vue.component("flyer", {
         } else if (this.memberData.district.toString().endsWith('3')) {
           message += "rd ";
         } else {
-          message += "th";
+          message += "th ";
         }
 
         message += "congressional district";
@@ -436,8 +436,8 @@ Vue.component("flyer-district", {
     return {
       styleObject: {
         color: "grey",
-        fontSize: "80px",
-        lineHeight: "92px",
+        fontSize: "72px",
+        lineHeight: "80px",
         margin: "0px",
         marginTop: "40px"
       },
